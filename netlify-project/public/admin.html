@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canal Crypté // BLACKOUT_ADMIN</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        .admin-nav-tabs {
+            display: flex;
+            gap: 5px;
+            border-bottom: 1px dashed var(--terminal-green-dim);
+            margin-bottom: 1.5rem;
+        }
+
+        .admin-nav-tabs button {
+            background: none;
+            border: 1px solid transparent;
+            border-bottom: none;
+            color: rgba(0, 255, 65, 0.6);
+            font-family: 'Share Tech Mono', monospace;
+            padding: 0.6rem 1.2rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.15s;
+        }
+
+        .admin-nav-tabs button:hover {
+            color: #fff;
+            background: rgba(0, 255, 65, 0.05);
+        }
+
+        .admin-nav-tabs button.active {
+            color: #fff;
+            background: rgba(0, 255, 65, 0.1);
+            border-color: var(--terminal-green-dim);
+            border-bottom: 2px solid var(--terminal-green);
+            font-weight: bold;
+            text-shadow: 0 0 5px var(--terminal-green);
+        }
+
+        .admin-tab-section {
+            display: none;
+        }
+
+        .admin-tab-section.active {
+            display: block;
+            animation: CRT-turn-on 0.3s ease forwards;
+        }
+
+        .metrics-bar {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .metric-box {
+            background: rgba(0, 255, 65, 0.03);
+            border: 1px solid var(--terminal-green-dim);
+            padding: 1rem;
+        }
+
+        .metric-box label {
+            display: block;
+            font-size: 0.75rem;
+            color: rgba(0, 255, 65, 0.7);
+        }
+
+        .metric-box .val {
+            font-size: 1.4rem;
+            color: #fff;
+            font-weight: bold;
+            margin-top: 0.3rem;
+            text-shadow: 0 0 6px var(--terminal-green-dim);
+        }
+
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        .admin-table th, .admin-table td {
+            border: 1px solid var(--terminal-green-dim);
+            padding: 0.8rem 1rem;
+            text-align: left;
+            font-size: 0.85rem;
+        }
+
+        .admin-table th {
+            background: rgba(0, 255, 65, 0.08);
+            color: var(--terminal-green);
+        }
+
+        .admin-table tr:hover {
+            background: rgba(0, 255, 65, 0.03);
+        }
+
+        .action-btn {
+            background: none;
+            border: 1px solid var(--terminal-green);
+            color: var(--terminal-green);
+            padding: 0.4rem 0.8rem;
+            font-family: 'Share Tech Mono', monospace;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover {
+            background: var(--terminal-green);
+            color: #000;
+            box-shadow: 0 0 10px rgba(0, 255, 65, 0.4);
+        }
+
+        .btn-reject {
+            border-color: var(--terminal-red);
+            color: var(--terminal-red);
+        }
+
+        .btn-reject:hover {
+            background: var(--terminal-red);
+            color: #fff;
+            box-shadow: 0 0 10px rgba(255, 0, 60, 0.4);
+        }
+
+        .cyber-form {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--terminal-green-dim);
+            padding: 1.2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-row-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-row-grid input, .form-row-grid select {
+            width: 100%;
+            padding: 0.6rem;
+            background: rgba(0, 255, 65, 0.03);
+            border: 1px solid var(--terminal-green-dim);
+            color: #fff;
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.9rem;
+            outline: none;
+        }
+
+        .form-row-grid input:focus, .form-row-grid select:focus {
+            border-color: var(--terminal-green);
+            box-shadow: 0 0 8px rgba(0, 255, 65, 0.3);
+        }
+
+        .status-badge {
+            padding: 0.2rem 0.5rem;
+            font-size: 0.75rem;
+            border-radius: 2px;
+        }
+        .status-Approved { background: rgba(0, 255, 65, 0.2); color: #00ff41; border: 1px solid #00ff41; }
+        .status-Pending { background: rgba(255, 179, 71, 0.2); color: #ffb347; border: 1px solid #ffb347; }
+        .status-Rejected { background: rgba(255, 0, 60, 0.2); color: #ff003c; border: 1px solid #ff003c; }
+    </style>
+</head>
+
+<body>
+    <canvas id="matrix-bg"></canvas>
+    <div class="overlay-noise"></div>
+    <div class="scanlines"></div>
+
+    <div class="terminal-os">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="encryption-status">
+                    <span class="pulse"></span> ACCÈS ROOT ACTIF
+                </div>
+                <h2>BLACKOUT_CATALOG</h2>
+                <p class="author">By: <span class="highlight-author">SpaceCowboy</span></p>
+            </div>
+
+            <nav class="file-list">
+                <button class="file-btn" onclick="window.location.href='index.html'">README.txt</button>
+
+                <!-- Dynamic folders loaded from API -->
+                <div id="adminDynamicFolders">
+                    <p style="padding: 0.8rem 1rem; opacity: 0.4; font-size: 0.8rem;">Chargement du catalogue...</p>
+                </div>
+
+                <button class="file-btn" onclick="window.location.href='index.html'">06_contact.dat</button>
+                <button class="file-btn" onclick="window.location.href='login.html'">07_login.dat</button>
+                <button type="button" class="file-btn active" onclick="showAdminMainPanel()">08_admin_panel.dat</button>
+                <button class="file-btn btn-reject" style="margin-top: 1rem;" onclick="logout()">[ DÉCONNEXION ]</button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <p id="adminUserDisplay" style="color:#00ff41; font-size:0.8rem;">STATUS: ROOT_LOGGED</p>
+                <p>STATUS: ENCRYPTED</p>
+            </div>
+        </aside>
+
+        <main class="viewer">
+            <div class="viewer-header">
+                <span id="current-file-name">08_admin_panel.dat</span>
+                <div class="window-controls">
+                    <span>_</span>
+                    <span>[]</span>
+                    <span>X</span>
+                </div>
+            </div>
+
+            <div class="viewer-content">
+                <div id="adminMainPanel" class="file-content active">
+                    <h3>◈ PANNEAU DE CONTRÔLE BACKEND DB</h3>
+                    <p class="highlight"><strong>[Console d'Administration Globale — Base de Données Centralisée]</strong></p>
+
+                    <!-- METRICS BAR -->
+                    <div class="metrics-bar">
+                        <div class="metric-box">
+                            <label>> UTILISATEURS EN DB</label>
+                            <div class="val" id="statUsers">0</div>
+                        </div>
+                        <div class="metric-box">
+                            <label>> TOTAL COMMANDES</label>
+                            <div class="val" id="statOrders">0</div>
+                        </div>
+                        <div class="metric-box">
+                            <label>> REVENU GÉNÉRÉ (€$)</label>
+                            <div class="val exploit" id="statRevenue">0 €$</div>
+                        </div>
+                        <div class="metric-box">
+                            <label>> STATUT SERVEUR DB</label>
+                            <div class="val" style="color:var(--terminal-green); font-size:1rem;" id="statStatus">CONNECTÉ</div>
+                        </div>
+                    </div>
+
+                    <!-- ADMIN TABS NAV -->
+                    <div class="admin-nav-tabs">
+                        <button class="active" onclick="switchAdminTab('tab-users', this)">01_utilisateurs.dat</button>
+                        <button onclick="switchAdminTab('tab-orders', this)">02_commandes.dat</button>
+                        <button onclick="switchAdminTab('tab-implants', this)">03_implants.dat</button>
+                        <button onclick="switchAdminTab('tab-categories', this)">04_catégories.dat</button>
+                    </div>
+
+                    <!-- TAB 1: USERS -->
+                    <div id="tab-users" class="admin-tab-section active">
+                        <div class="cyber-form">
+                            <p class="highlight" style="margin-bottom:0.8rem;"><strong>> CRÉER UN COMPTE DB</strong></p>
+                            <form id="addUserForm" onsubmit="event.preventDefault(); handleAddUser();">
+                                <div class="form-row-grid">
+                                    <input type="text" id="newUsername" placeholder="ID Utilisateur (ex: V_NightCity)" required>
+                                    <input type="password" id="newPassword" placeholder="Mot de passe" required>
+                                    <select id="newRole">
+                                        <option value="user">Rôle: User</option>
+                                        <option value="admin">Rôle: Admin</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="action-btn">+ ENREGISTRER EN BASE DE DONNÉES</button>
+                            </form>
+                        </div>
+
+                        <p><strong>> COMPTES UTILISATEURS REGISTRÉS :</strong></p>
+                        <div id="userListDiv">Chargement...</div>
+                    </div>
+
+                    <!-- TAB 2: ORDERS -->
+                    <div id="tab-orders" class="admin-tab-section">
+                        <p><strong>> TRANSACTIONS ET COMMANDES CLIENTS :</strong></p>
+                        <div id="orderListDiv">Chargement...</div>
+                    </div>
+
+                    <!-- TAB 3: NEW IMPLANT -->
+                    <div id="tab-implants" class="admin-tab-section">
+                        <div class="cyber-form">
+                            <p class="highlight" style="margin-bottom:0.8rem;"><strong>> AJOUTER UN IMPLANT EN BASE DE DONNÉES</strong></p>
+                            <form id="addImplantForm" onsubmit="event.preventDefault(); handleAddImplant();">
+                                <div class="form-row-grid">
+                                    <input type="text" id="impName" placeholder="Nom de l'implant" required>
+                                    <select id="impCategory">
+                                        <option value="01_neural">Catégorie: 01_neural</option>
+                                        <option value="02_optique">Catégorie: 02_optique</option>
+                                        <option value="03_bras">Catégorie: 03_bras</option>
+                                        <option value="04_corps">Catégorie: 04_corps</option>
+                                        <option value="05_systeme">Catégorie: 05_systeme</option>
+                                    </select>
+                                    <input type="number" id="impPrice" placeholder="Prix (€$)" required>
+                                    <select id="impRarity">
+                                        <option value="COMMUN">Rareté: COMMUN</option>
+                                        <option value="RARE">Rareté: RARE</option>
+                                        <option value="ÉPIQUE">Rareté: ÉPIQUE</option>
+                                        <option value="LÉGENDAIRE">Rareté: LÉGENDAIRE</option>
+                                    </select>
+                                </div>
+                                <input type="text" id="impDesc" placeholder="Description technique de l'implant..." style="width:100%; margin-bottom:1rem; padding:0.6rem; background:rgba(0,255,65,0.03); border:1px solid var(--terminal-green-dim); color:#fff; font-family:'Share Tech Mono', monospace;" required>
+                                <input type="text" id="impImageUrl" placeholder="URL de l'image (ex: https://...)" style="width:100%; margin-bottom:1rem; padding:0.6rem; background:rgba(0,255,65,0.03); border:1px solid var(--terminal-green-dim); color:#fff; font-family:'Share Tech Mono', monospace;">
+                                <button type="submit" class="action-btn">+ PUBLIER DANS LA DB</button>
+                            </form>
+                        </div>
+
+                        <p><strong>> CATALOGUE IMPLANTS DB :</strong></p>
+                        <div id="implantListDiv">Chargement...</div>
+                    </div>
+
+                    <!-- TAB 4: CATEGORIES -->
+                    <div id="tab-categories" class="admin-tab-section">
+                        <div class="cyber-form">
+                            <p class="highlight" style="margin-bottom:0.8rem;"><strong>> AJOUTER UNE CATÉGORIE</strong></p>
+                            <form id="addCategoryForm" onsubmit="event.preventDefault(); handleAddCategory();">
+                                <div class="form-row-grid">
+                                    <input type="text" id="catId" placeholder="ID (ex: 06_stealth)" required>
+                                    <input type="text" id="catName" placeholder="Nom affiché (ex: Stealth)" required>
+                                </div>
+                                <input type="text" id="catDesc" placeholder="Description de la catégorie..." style="width:100%; margin-bottom:1rem; padding:0.6rem; background:rgba(0,255,65,0.03); border:1px solid var(--terminal-green-dim); color:#fff; font-family:'Share Tech Mono', monospace;">
+                                <button type="submit" class="action-btn">+ PUBLIER DANS LA DB</button>
+                            </form>
+                        </div>
+
+                        <p><strong>> CATÉGORIES ENREGISTRÉES :</strong></p>
+                        <div id="categoryListDiv">Chargement...</div>
+                    </div>
+                </div>
+
+                <!-- Product sheet, shown when clicking an implant in the sidebar -->
+                <div id="adminProductSheet" class="file-content"></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- MODAL: EDIT IMPLANT -->
+    <div id="editImplantModal" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.85); align-items:center; justify-content:center;">
+        <div style="background:#0d0d0d; border:1px solid var(--terminal-green); padding:2rem; max-width:500px; width:90%; border-radius:4px;">
+            <p class="highlight" style="margin-bottom:1rem;"><strong>> MODIFIER L'IMPLANT</strong></p>
+            <input type="hidden" id="editImpId">
+            <input type="text" id="editImpName" placeholder="Nom" style="width:100%; margin-bottom:0.5rem; padding:0.5rem; background:rgba(0,255,65,0.03); border:1px solid var(--terminal-green-dim); color:#fff; font-family:'Share Tech Mono', monospace;">
+            <select id="editImpCategory" style="width:100%; margin-bottom:0.5rem; padding:0.5rem; background:#0d0d0d; border:1px solid var(--terminal-green-dim); color:#fff; font-family:'Share Tech Mono', monospace;">
+                <option value="01_neural">01_neural</option>
+                <option value="02_optique">02_optique</option>
+                <option value="03_bras">03_bras</option>
+                <option value="04_corps">04_corps</option>
+                <option value="05_systeme">05_systeme</option>
+            </select>
+            <select id="editImpRarity" style="width:100%; margin-bottom:0.5rem; padding:0.5rem; background:#0d0d0d; border:1px solid var(--terminal-green-dim); color:#fff; font-family:'Share Tech Mono', monospace;">
+                <option value="COMMUN">COMMUN</option>
+                <option value="RARE">RARE</option>
+                <option value="ÉPIQUE">ÉPIQUE</option>
+                <option value="LÉGENDAIRE">LÉGENDAIRE</option>
+            </select>
+            <input type="number" id="editImpPrice" placeholder="Prix" style="width:100%; margin-bottom:0.5rem; padding:0.5rem; background:rgba(0,255,65,0.03); border:1px solid var(--terminal-green-dim); color:#fff; font-family:'Share Tech Mono', monospace;">
+            <input type="text" id="editImpDesc" placeholder="Description" style="width:100%; margin-bottom:0.5rem; padding:0.5rem; background:rgba(0,255,65,0.03); border:1px solid var(--terminal-green-dim); color:#fff; font-family:'Share Tech Mono', monospace;">
+            <input type="text" id="editImpImageUrl" placeholder="URL de l'image (ex: https://...)" style="width:100%; margin-bottom:1rem; padding:0.5rem; background:rgba(0,255,65,0.03); border:1px solid var(--terminal-green-dim); color:#fff; font-family:'Share Tech Mono', monospace;">
+            <div style="display:flex; gap:1rem;">
+                <button class="action-btn btn-approve" onclick="handleEditImplant()">✓ SAUVEGARDER</button>
+                <button class="action-btn btn-reject" onclick="closeEditModal()">✕ ANNULER</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: EDIT CATEGORY -->
+    <div id="editCategoryModal" style="display:none; position:fixed; inset:0; z-index:9999; background:rgba(0,0,0,0.85); align-items:center; justify-content:center;">
+        <div style="background:#0d0d0d; border:1px solid var(--terminal-green); padding:2rem; max-width:500px; width:90%; border-radius:4px;">
+            <p class="highlight" style="margin-bottom:1rem;"><strong>> MODIFIER LA CATÉGORIE</strong></p>
+            <input type="hidden" id="editCatId">
+            <input type="text" id="editCatName" placeholder="Nom" style="width:100%; margin-bottom:0.5rem; padding:0.5rem; background:rgba(0,255,65,0.03); border:1px solid var(--terminal-green-dim); color:#fff; font-family:'Share Tech Mono', monospace;">
+            <input type="text" id="editCatDesc" placeholder="Description" style="width:100%; margin-bottom:1rem; padding:0.5rem; background:rgba(0,255,65,0.03); border:1px solid var(--terminal-green-dim); color:#fff; font-family:'Share Tech Mono', monospace;">
+            <div style="display:flex; gap:1rem;">
+                <button class="action-btn btn-approve" onclick="handleEditCategory()">✓ SAUVEGARDER</button>
+                <button class="action-btn btn-reject" onclick="closeCategoryEditModal()">✕ ANNULER</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        function switchAdminTab(tabId, btn) {
+            document.querySelectorAll('.admin-tab-section').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.admin-nav-tabs button').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            btn.classList.add('active');
+        }
+
+        function refreshAdminData() {
+            renderUserList();
+            renderOrderList();
+            renderImplantList();
+            updateMetrics();
+        }
+
+        // ============================================================
+        // SIDEBAR CATALOG FOLDERS (mirrors index.html's structure)
+        // ============================================================
+        let _lastAdminFolderSnapshot = null;
+
+        async function renderSidebarFolders(isAutoRefresh = false) {
+            const folderRoot = document.getElementById('adminDynamicFolders');
+            if (!folderRoot) return;
+
+            try {
+                const [catRes, implantRes] = await Promise.all([
+                    fetch('/api/categories'),
+                    fetch('/api/implants')
+                ]);
+                const categories = await catRes.json();
+                const implants = await implantRes.json();
+
+                const snapshot = JSON.stringify({ categories, implants });
+                if (isAutoRefresh && snapshot === _lastAdminFolderSnapshot) return;
+                _lastAdminFolderSnapshot = snapshot;
+
+                const openFolderNames = Array.from(document.querySelectorAll('#adminDynamicFolders .folder-btn.open'))
+                    .map(btn => btn.textContent.trim());
+
+                const byCategory = {};
+                implants.forEach(imp => {
+                    const catId = imp.category || '_uncategorized';
+                    if (!byCategory[catId]) byCategory[catId] = [];
+                    byCategory[catId].push(imp);
+                });
+
+                let html = '';
+                categories.forEach(cat => {
+                    const items = byCategory[cat.id] || [];
+                    html += `
+                        <div class="folder">
+                            <button type="button" class="folder-btn">${escapeHtmlAdmin(cat.name)}</button>
+                            <div class="sub-files">
+                                ${items.map(imp => `<button type="button" class="file-btn" data-admin-implant="${escapeHtmlAdmin(imp.id)}">${escapeHtmlAdmin(imp.name)}</button>`).join('') || '<span style="padding:0.5rem 0.8rem; opacity:0.4; font-size:0.8rem;">(vide)</span>'}
+                            </div>
+                        </div>`;
+                });
+
+                folderRoot.innerHTML = html;
+
+                document.querySelectorAll('#adminDynamicFolders .folder-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        btn.classList.toggle('open');
+                        const subFiles = btn.nextElementSibling;
+                        if (subFiles) subFiles.classList.toggle('open');
+                    });
+                    if (openFolderNames.includes(btn.textContent.trim())) {
+                        btn.classList.add('open');
+                        const subFiles = btn.nextElementSibling;
+                        if (subFiles) subFiles.classList.add('open');
+                    }
+                });
+
+                // Clicking an implant shows its sheet in place, no navigation
+                document.querySelectorAll('#adminDynamicFolders [data-admin-implant]').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        const impId = btn.getAttribute('data-admin-implant');
+                        const imp = implants.find(i => i.id === impId);
+                        if (!imp) return;
+
+                        document.querySelectorAll('#adminDynamicFolders .file-btn').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+
+                        const mainPanel = document.getElementById('adminMainPanel');
+                        const sheet = document.getElementById('adminProductSheet');
+                        if (mainPanel) mainPanel.classList.remove('active');
+                        if (sheet) {
+                            sheet.innerHTML = buildAdminProductSheet(imp);
+                            sheet.classList.add('active');
+                        }
+
+                        const currentFileName = document.getElementById('current-file-name');
+                        if (currentFileName) currentFileName.textContent = imp.name;
+                    });
+                });
+            } catch (e) {
+                console.error('Error loading sidebar folders:', e);
+                if (!isAutoRefresh) {
+                    folderRoot.innerHTML = '<p style="padding:0.8rem 1rem; color:#ff3366; font-size:0.8rem;">Erreur de chargement.</p>';
+                }
+            }
+        }
+
+        function escapeHtmlAdmin(str) {
+            if (str === undefined || str === null) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function buildAdminProductSheet(imp) {
+            const rarityColors = {
+                'COMMUN': '#9e9e9e',
+                'RARE': '#00bfff',
+                'ÉPIQUE': '#b967ff',
+                'LÉGENDAIRE': '#ffc107',
+                'ICONIQUE': '#ff2d7b'
+            };
+            const rarityColor = rarityColors[imp.rarity] || '#00ff41';
+            const price = Number(imp.price) || 0;
+            const imageHtml = imp.imageUrl 
+                ? `<img src="${escapeHtmlAdmin(imp.imageUrl)}" style="max-width:100%; max-height:100%; object-fit:contain;" alt="${escapeHtmlAdmin(imp.name)}">`
+                : '';
+
+            return `
+                <div class="product-layout">
+                    <div class="product-frame">
+                        ${imageHtml}
+                        <div class="corners"></div>
+                    </div>
+                    <div class="product-info">
+                        <h3>◈ ${escapeHtmlAdmin(imp.name)}</h3>
+                        <p class="highlight"><strong>[Catégorie : ${escapeHtmlAdmin(imp.category || '')}]</strong></p>
+                        <p>${escapeHtmlAdmin(imp.desc || '')}</p>
+                        <br>
+                        <p>Rareté : <strong style="color:${rarityColor};">${escapeHtmlAdmin(imp.rarity || '')}</strong></p>
+                        <p class="exploit"><strong>PRIX : ${price.toLocaleString()} €$</strong></p>
+                    </div>
+                </div>`;
+        }
+
+        function showAdminMainPanel() {
+            document.querySelectorAll('#adminDynamicFolders .file-btn').forEach(b => b.classList.remove('active'));
+            const mainPanel = document.getElementById('adminMainPanel');
+            const sheet = document.getElementById('adminProductSheet');
+            if (sheet) sheet.classList.remove('active');
+            if (mainPanel) mainPanel.classList.add('active');
+            const currentFileName = document.getElementById('current-file-name');
+            if (currentFileName) currentFileName.textContent = '08_admin_panel.dat';
+        }
+
+        async function updateMetrics() {
+            try {
+                const resUsers = await fetch('/api/users');
+                const users = await resUsers.json();
+                document.getElementById('statUsers').textContent = users.length || 0;
+
+                const resOrders = await fetch('/api/orders');
+                const orders = await resOrders.json();
+                document.getElementById('statOrders').textContent = orders.length || 0;
+
+                const totalRev = orders.reduce((sum, o) => sum + (o.price || 0), 0);
+                document.getElementById('statRevenue').textContent = `${totalRev.toLocaleString()} €$`;
+            } catch (e) {}
+        }
+
+        // ==========================================
+        // ORDERS
+        // ==========================================
+        async function renderOrderList() {
+            const orderDiv = document.getElementById('orderListDiv');
+            if (!orderDiv) return;
+            try {
+                const res = await fetch('/api/orders');
+                const orders = await res.json();
+                if (!orders || orders.length === 0) {
+                    orderDiv.innerHTML = '<p>Aucune commande en DB.</p>';
+                    return;
+                }
+
+                // Sort from most recent to oldest
+                const sortedOrders = [...orders].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+                let html = '<table class="admin-table"><tr><th>ID</th><th>Utilisateur</th><th>Implant</th><th>Prix</th><th>Statut</th><th>Date</th><th>Actions</th></tr>';
+                sortedOrders.forEach(order => {
+                    const statusColor = order.status === 'Approved' ? '#00ff41' : order.status === 'Pending' ? '#ffb347' : '#ff3366';
+                    const date = new Date(order.timestamp).toLocaleString('fr-FR');
+                    html += `<tr>
+                        <td>#${order.id}</td>
+                        <td><strong>${order.username}</strong></td>
+                        <td>${order.implant_name}</td>
+                        <td><span class="exploit">${(order.price || 0).toLocaleString()} €$</span></td>
+                        <td><span style="color:${statusColor}; font-weight:bold;">${order.status}</span></td>
+                        <td style="font-size:0.8rem; opacity:0.8;">${date}</td>
+                        <td style="white-space:nowrap;">
+                            <button class="action-btn btn-approve" onclick="updateOrderStatus(${order.id}, 'Approved')">✓ Approuver</button>
+                            <button class="action-btn btn-reject" onclick="updateOrderStatus(${order.id}, 'Rejected')">✕ Rejeter</button>
+                        </td>
+                    </tr>`;
+                });
+                html += '</table>';
+
+                orderDiv.innerHTML = html;
+            } catch (e) {
+                orderDiv.innerHTML = '<p style="color:#ff3366;">Erreur de chargement des commandes.</p>';
+            }
+        }
+
+        async function updateOrderStatus(orderId, status) {
+            try {
+                const res = await fetch(`/api/orders/${orderId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status })
+                });
+                if (res.ok) {
+                    renderOrderList();
+                    updateMetrics();
+                } else {
+                    alert('Erreur lors de la mise à jour du statut.');
+                }
+            } catch (e) {
+                alert('Erreur serveur.');
+            }
+        }
+
+        async function renderImplantList() {
+            const impDiv = document.getElementById('implantListDiv');
+            if (!impDiv) return;
+            try {
+                const res = await fetch('/api/implants');
+                const implants = await res.json();
+                if (!implants || implants.length === 0) {
+                    impDiv.innerHTML = '<p>Aucun implant trouvé en DB.</p>';
+                    return;
+                }
+
+                // Group by category
+                const cats = {};
+                implants.forEach(item => {
+                    if (!cats[item.category]) cats[item.category] = [];
+                    cats[item.category].push(item);
+                });
+
+                let html = '';
+                Object.keys(cats).sort().forEach(cat => {
+                    html += `<p style="margin-top:1.2rem; margin-bottom:0.4rem;"><strong style="color:var(--terminal-green);">> ${cat}/</strong></p>`;
+                    html += '<table class="admin-table"><tr><th>Nom</th><th>Rareté</th><th>Prix</th><th>Description</th><th>Actions</th></tr>';
+                    cats[cat].forEach(item => {
+                        html += `<tr>
+                            <td><strong>${item.name}</strong></td>
+                            <td><span class="highlight">${item.rarity}</span></td>
+                            <td><span class="exploit">${(item.price || 0).toLocaleString()} €$</span></td>
+                            <td style="max-width:200px; font-size:0.8rem; opacity:0.8;">${item.desc || ''}</td>
+                            <td style="white-space:nowrap;">
+                                <button class="action-btn btn-approve" onclick="openEditModal('${item.id}', \`${item.name.replace(/`/g,"'")}\`, '${item.category}', '${item.rarity}', ${item.price}, \`${(item.desc||'').replace(/`/g,"'")}\`, '${(item.imageUrl||'').replace(/'/g,"\\'")}')">✏ Modifier</button>
+                                <button class="action-btn btn-reject" onclick="deleteImplant('${item.id}')">✕ Supprimer</button>
+                            </td>
+                        </tr>`;
+                    });
+                    html += '</table>';
+                });
+                impDiv.innerHTML = html;
+            } catch(e) {
+                impDiv.innerHTML = '<p style="color:var(--terminal-red);">Erreur DB.</p>';
+            }
+        }
+
+        async function deleteImplant(id) {
+            if (!confirm('Supprimer cet implant de la base de données ?')) return;
+            try {
+                const res = await fetch(`/api/implants/${id}`, { method: 'DELETE' });
+                if (res.ok) renderImplantList();
+            } catch(e) { alert('Erreur suppression.'); }
+        }
+
+        function openEditModal(id, name, category, rarity, price, desc, imageUrl) {
+            document.getElementById('editImpId').value = id;
+            document.getElementById('editImpName').value = name;
+            document.getElementById('editImpCategory').value = category;
+            document.getElementById('editImpRarity').value = rarity;
+            document.getElementById('editImpPrice').value = price;
+            document.getElementById('editImpDesc').value = desc;
+            document.getElementById('editImpImageUrl').value = imageUrl || '';
+            document.getElementById('editImplantModal').style.display = 'flex';
+        }
+
+        function closeEditModal() {
+            document.getElementById('editImplantModal').style.display = 'none';
+        }
+
+        async function handleEditImplant() {
+            const id       = document.getElementById('editImpId').value;
+            const name     = document.getElementById('editImpName').value.trim();
+            const category = document.getElementById('editImpCategory').value;
+            const rarity   = document.getElementById('editImpRarity').value;
+            const price    = parseInt(document.getElementById('editImpPrice').value);
+            const desc     = document.getElementById('editImpDesc').value.trim();
+            const imageUrl = document.getElementById('editImpImageUrl').value.trim();
+
+            if (!name || !price) return;
+            try {
+                const res = await fetch(`/api/implants/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, category, rarity, price, desc, imageUrl })
+                });
+                if (res.ok) {
+                    closeEditModal();
+                    renderImplantList();
+                } else {
+                    alert('Erreur lors de la modification.');
+                }
+            } catch(e) { alert('Erreur serveur.'); }
+        }
+
+        async function handleAddImplant() {
+            const name     = document.getElementById('impName').value.trim();
+            const category = document.getElementById('impCategory').value;
+            const price    = parseInt(document.getElementById('impPrice').value);
+            const rarity   = document.getElementById('impRarity').value;
+            const desc     = document.getElementById('impDesc').value.trim();
+            const imageUrl = document.getElementById('impImageUrl').value.trim();
+
+            if (!name || !price) return;
+
+            try {
+                const res = await fetch('/api/implants', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, category, price, rarity, desc, imageUrl, id: 'f-custom-' + Date.now() })
+                });
+                if (res.ok) {
+                    document.getElementById('addImplantForm').reset();
+                    renderImplantList();
+                }
+            } catch (e) {
+                alert('Erreur lors de l\'ajout.');
+            }
+        }
+
+        // ==========================================
+        // CATEGORIES CRUD
+        // ==========================================
+
+        async function renderCategoryList() {
+            const catDiv = document.getElementById('categoryListDiv');
+            if (!catDiv) return;
+            try {
+                const res = await fetch('/api/categories');
+                const categories = await res.json();
+                if (!categories || categories.length === 0) {
+                    catDiv.innerHTML = '<p>Aucune catégorie trouvée en DB.</p>';
+                    return;
+                }
+                let html = '<table class="admin-table"><tr><th>ID</th><th>Nom</th><th>Description</th><th>Actions</th></tr>';
+                categories.forEach(cat => {
+                    html += `<tr>
+                        <td><strong style="color:var(--terminal-green);">${cat.id}</strong></td>
+                        <td>${cat.name}</td>
+                        <td style="font-size:0.8rem; opacity:0.8;">${cat.description || ''}</td>
+                        <td style="white-space:nowrap;">
+                            <button class="action-btn btn-approve" onclick="openCategoryEditModal('${cat.id}', '${cat.name.replace(/'/g,"\\'")}', '${(cat.description||'').replace(/'/g,"\\'")}')">✏ Modifier</button>
+                            <button class="action-btn btn-reject" onclick="deleteCategory('${cat.id}')">✕ Supprimer</button>
+                        </td>
+                    </tr>`;
+                });
+                html += '</table>';
+                catDiv.innerHTML = html;
+
+                // Also refresh category dropdowns in implant forms
+                populateCategorySelects(categories);
+            } catch(e) {
+                catDiv.innerHTML = '<p style="color:var(--terminal-red);">Erreur DB.</p>';
+            }
+        }
+
+        function populateCategorySelects(categories) {
+            const selects = ['impCategory', 'editImpCategory'];
+            selects.forEach(selId => {
+                const sel = document.getElementById(selId);
+                if (!sel) return;
+                sel.innerHTML = '';
+                categories.forEach(cat => {
+                    const opt = document.createElement('option');
+                    opt.value = cat.id;
+                    opt.textContent = `Catégorie: ${cat.id}`;
+                    sel.appendChild(opt);
+                });
+            });
+        }
+
+        async function handleAddCategory() {
+            const id   = document.getElementById('catId').value.trim();
+            const name = document.getElementById('catName').value.trim();
+            const desc = document.getElementById('catDesc').value.trim();
+
+            if (!id || !name) return;
+            try {
+                const res = await fetch('/api/categories', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id, name, description: desc })
+                });
+                if (res.ok) {
+                    document.getElementById('addCategoryForm').reset();
+                    renderCategoryList();
+                } else {
+                    const data = await res.json();
+                    alert(data.error || 'Erreur.');
+                }
+            } catch(e) { alert('Erreur serveur.'); }
+        }
+
+        function openCategoryEditModal(id, name, desc) {
+            document.getElementById('editCatId').value = id;
+            document.getElementById('editCatName').value = name;
+            document.getElementById('editCatDesc').value = desc;
+            document.getElementById('editCategoryModal').style.display = 'flex';
+        }
+
+        function closeCategoryEditModal() {
+            document.getElementById('editCategoryModal').style.display = 'none';
+        }
+
+        async function handleEditCategory() {
+            const id   = document.getElementById('editCatId').value;
+            const name = document.getElementById('editCatName').value.trim();
+            const desc = document.getElementById('editCatDesc').value.trim();
+
+            if (!name) return;
+            try {
+                const res = await fetch(`/api/categories/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, description: desc })
+                });
+                if (res.ok) {
+                    closeCategoryEditModal();
+                    renderCategoryList();
+                } else {
+                    alert('Erreur lors de la modification.');
+                }
+            } catch(e) { alert('Erreur serveur.'); }
+        }
+
+        async function deleteCategory(id) {
+            if (!confirm('Supprimer cette catégorie de la base de données ?')) return;
+            try {
+                const res = await fetch(`/api/categories/${id}`, { method: 'DELETE' });
+                if (res.ok) renderCategoryList();
+            } catch(e) { alert('Erreur suppression.'); }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Show connected admin in sidebar
+            const adminUser = sessionStorage.getItem('blackout_user') || '???';
+            const displayEl = document.getElementById('adminUserDisplay');
+            if (displayEl) {
+                displayEl.innerHTML = `> USER: <strong>${adminUser}</strong> [admin]`;
+            }
+
+            refreshAdminData();
+            renderImplantList();
+            renderCategoryList();
+            renderSidebarFolders();
+
+            // Auto-refresh admin data every 5s, but pause while the user is
+            // actively typing in a form or has an edit modal open, so we
+            // never overwrite in-progress input.
+            setInterval(() => {
+                const editModalOpen = document.getElementById('editCategoryModal')?.style.display === 'flex'
+                    || document.getElementById('editImplantModal')?.style.display === 'flex';
+                const isTyping = document.activeElement && ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement.tagName);
+
+                if (editModalOpen || isTyping) return;
+
+                refreshAdminData();
+                renderCategoryList();
+                renderSidebarFolders(true);
+            }, 5000);
+        });
+    </script>
+</body>
+
+</html>

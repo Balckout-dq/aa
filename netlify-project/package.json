@@ -1,0 +1,14 @@
+{
+  "name": "blackout-cyber-netlify",
+  "version": "1.0.0",
+  "description": "BLACKOUT Implant Catalog - Netlify Functions + Blobs version",
+  "scripts": {
+    "dev": "netlify dev"
+  },
+  "dependencies": {
+    "@netlify/blobs": "^8.1.0"
+  },
+  "devDependencies": {
+    "netlify-cli": "^17.0.0"
+  }
+}
