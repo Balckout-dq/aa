@@ -50,9 +50,19 @@ function getInitialData() {
 }
 
 function getBlobStore() {
-    // In Netlify Functions, siteID and token are auto-injected when
-    // deployed on Netlify. For local dev with `netlify dev`, this also
-    // works automatically via the Netlify CLI context.
+    // Prefer explicit siteID/token from environment variables — this is
+    // more reliable than relying on Netlify's automatic context injection,
+    // which can fail to reach functions when a custom "Base directory" is
+    // configured in the site's build settings.
+    const siteID = process.env.NETLIFY_SITE_ID || process.env.SITE_ID;
+    const token = process.env.NETLIFY_BLOBS_TOKEN || process.env.NETLIFY_AUTH_TOKEN;
+
+    if (siteID && token) {
+        return getStore({ name: STORE_NAME, siteID, token });
+    }
+
+    // Fallback: automatic configuration (works out of the box with
+    // `netlify dev` locally, and on most standard Netlify deployments)
     return getStore(STORE_NAME);
 }
 
