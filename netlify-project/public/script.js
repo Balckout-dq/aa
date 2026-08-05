@@ -168,7 +168,7 @@ async function checkBackendStatus() {
         const data = await res.json();
         const statusEl = document.getElementById('dbStatus') || document.getElementById('adminDbStatus');
         if (statusEl) {
-            statusEl.innerHTML = `<span style="color:#00ff41;">● BACKEND DB : CONNECTÉE (${data.database})</span>`;
+            statusEl.innerHTML = `<span style="color:#00ff41;">● BACKEND DB : CONNECTÉE</span>`;
         }
     } catch (e) {
         console.warn('Backend server not reachable yet:', e);
