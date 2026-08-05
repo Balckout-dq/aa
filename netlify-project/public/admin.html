@@ -646,7 +646,6 @@
         }
 
         async function deleteImplant(id) {
-            if (!confirm('Supprimer cet implant de la base de données ?')) return;
             try {
                 const res = await fetch(`/api/implants/${id}`, { method: 'DELETE' });
                 if (res.ok) renderImplantList();
@@ -824,7 +823,6 @@
         }
 
         async function deleteCategory(id) {
-            if (!confirm('Supprimer cette catégorie de la base de données ?')) return;
             try {
                 const res = await fetch(`/api/categories/${id}`, { method: 'DELETE' });
                 if (res.ok) renderCategoryList();

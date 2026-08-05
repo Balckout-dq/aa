@@ -1,9 +1,10 @@
 const db = require('./utils/database');
+const auth = require('./utils/auth');
 
 const JSON_HEADERS = { 'Content-Type': 'application/json' };
 
-function jsonResponse(statusCode, body) {
-    return { statusCode, headers: JSON_HEADERS, body: JSON.stringify(body) };
+function jsonResponse(statusCode, body, extraHeaders = {}) {
+    return { statusCode, headers: { ...JSON_HEADERS, ...extraHeaders }, body: JSON.stringify(body) };
 }
 
 exports.handler = async (event) => {
@@ -13,6 +14,8 @@ exports.handler = async (event) => {
         const segments = path.split('/').filter(Boolean); // e.g. ['orders', '123']
         const method = event.httpMethod;
         const body = event.body ? JSON.parse(event.body) : {};
+        const cookieHeader = event.headers.cookie || event.headers.Cookie;
+        const session = auth.getSessionFromCookieHeader(cookieHeader);
 
         // ==========================================
         // STATUS
@@ -36,9 +39,29 @@ exports.handler = async (event) => {
             }
             const user = await db.findUser(username, password);
             if (user) {
-                return jsonResponse(200, { success: true, user: { username: user.username, role: user.role } });
+                const token = auth.createSessionToken(user.username, user.role);
+                return jsonResponse(
+                    200,
+                    { success: true, user: { username: user.username, role: user.role } },
+                    { 'Set-Cookie': auth.buildSessionCookie(token) }
+                );
             }
             return jsonResponse(401, { error: 'Identifiants invalides.' });
+        }
+
+        // ==========================================
+        // LOGOUT
+        // ==========================================
+        if (segments[0] === 'logout' && method === 'POST') {
+            return jsonResponse(200, { success: true }, { 'Set-Cookie': auth.buildLogoutCookie() });
+        }
+
+        // ==========================================
+        // SESSION CHECK (used by the frontend to know who's logged in)
+        // ==========================================
+        if (segments[0] === 'session' && method === 'GET') {
+            if (!session) return jsonResponse(401, { error: 'Non connecté.' });
+            return jsonResponse(200, { username: session.username, role: session.role });
         }
 
         // ==========================================

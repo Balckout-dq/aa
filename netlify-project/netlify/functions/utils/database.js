@@ -30,7 +30,7 @@ const INITIAL_IMPLANTS = [
 ];
 
 const INITIAL_USERS = [
-    { username: 'admin', password: 'admin', role: 'admin', created_at: new Date().toISOString() },
+    { username: 'Sp', password: 'Verdant', role: 'admin', created_at: new Date().toISOString() },
     { username: 'user', password: '1234', role: 'user', created_at: new Date().toISOString() },
     { username: 'V_Cyberpunk', password: 'nightcity', role: 'user', created_at: new Date().toISOString() }
 ];

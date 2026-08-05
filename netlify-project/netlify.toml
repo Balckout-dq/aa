@@ -3,6 +3,18 @@
   functions = "netlify/functions"
   command = "npm install"
 
+[[edge_functions]]
+  function = "auth-guard"
+  path = "/admin.html"
+
+[[edge_functions]]
+  function = "auth-guard"
+  path = "/index.html"
+
+[[edge_functions]]
+  function = "auth-guard"
+  path = "/"
+
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/api/:splat"

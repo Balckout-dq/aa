@@ -192,6 +192,7 @@ async function attemptLogin() {
     try {
         const res = await fetch(`${API_BASE}/login`, {
             method: 'POST',
+            credentials: 'include',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username: u, password: p })
         });
@@ -226,7 +227,12 @@ async function attemptLogin() {
 }
 
 // LOGOUT
-function logout() {
+async function logout() {
+    try {
+        await fetch(`${API_BASE}/logout`, { method: 'POST', credentials: 'include' });
+    } catch (e) {
+        console.error('Logout error:', e);
+    }
     sessionStorage.removeItem('blackout_user');
     sessionStorage.removeItem('blackout_auth');
     window.location.href = 'login.html';
@@ -295,8 +301,6 @@ async function handleAddUser() {
 
 // DELETE USER FROM DB
 async function deleteUser(username) {
-    if (!confirm(`Supprimer l'utilisateur "${username}" de la base de données ?`)) return;
-
     try {
         const res = await fetch(`${API_BASE}/users/${username}`, {
             method: 'DELETE'
