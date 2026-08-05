@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canal Crypté // BLACKOUT_IMPLANTS</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <canvas id="matrix-bg"></canvas>
+    <div class="overlay-noise"></div>
+    <div class="scanlines"></div>
+
+    <div class="terminal-os">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="encryption-status">
+                    <span class="pulse"></span> CONNEXION SÉCURISÉE
+                </div>
+                <h2>BLACKOUT_CATALOG</h2>
+                <p class="author">By: <span class="highlight-author">SpaceCowboy</span></p>
+            </div>
+
+            <nav class="file-list">
+                <button class="file-btn active" data-target="file-readme">README.txt</button>
+
+                <!-- Dynamic folders loaded from API -->
+                <div id="dynamicFolders">
+                    <p style="padding: 0.8rem 1rem; opacity: 0.4; font-size: 0.8rem;">Chargement du catalogue...</p>
+                </div>
+
+                <button type="button" class="file-btn" data-target="file-myorders">07_mes_commandes.dat</button>
+                <button type="button" class="file-btn" data-target="file-contact">06_contact.dat</button>
+                <button class="file-btn" data-target="file-admin" style="display:none;">08_admin_panel.dat</button>
+            </nav>
+
+            <div class="sidebar-footer">
+                <p>STATUS: ENCRYPTED</p>
+                <p>SYSTEM: BLACKOUT_OS v2.4</p>
+            </div>
+        </aside>
+
+        <main class="viewer">
+            <div class="viewer-header">
+                <span id="current-file-name">README.txt</span>
+                <div class="window-controls">
+                    <span>_</span>
+                    <span>[]</span>
+                    <span>X</span>
+                </div>
+            </div>
+
+            <div class="viewer-content">
+
+                <!-- README -->
+                <div id="file-readme" class="file-content active">
+                    <p>> CONNEXION ÉTABLIE. CANAL CRYPTÉ ACTIF.</p>
+                    <p>> Bienvenue sur le catalogue BLACKOUT — le premier réseau de revente d'implants cybernétiques de Los
+                        Santos.</p>
+                    <p>> Tous nos produits sont récupérés, reconditionnés ou volés directement aux labos corpo. Qualité
+                        garantie. Aucune trace.</p>
+                    <p>> Parcourez les dossiers sur la gauche. Les prix sont en <strong>€eddies</strong>.</p>
+                    <p>> Pour commander, consultez <strong>06_contact.dat</strong>.</p>
+                    <p>> Restez discrets. — <span class="highlight-author">SpaceCowboy</span></p>
+                </div>
+
+                <!-- Dynamic product content injected by script.js -->
+                <div id="dynamicProducts"></div>
+
+                <!-- CONTACT -->
+                <div id="file-contact" class="file-content">
+                    <h3>--- COMMENT COMMANDER ---</h3>
+                    <p class="highlight"><strong>[Protocole d'achat sécurisé]</strong></p>
+                    <p><strong>ÉTAPE 1 :</strong> Choisissez vos implants dans le catalogue. Notez les références
+                        exactes.</p>
+                    <p><strong>ÉTAPE 2 :</strong> Contactez-nous via le canal crypté habituel. Transmettez votre liste
+                        et localisation.</p>
+                    <p><strong>ÉTAPE 3 :</strong> Paiement en <strong>€eddies uniquement</strong>. Pas de crédit corpo,
+                        pas de négociation.</p>
+                    <p><strong>ÉTAPE 4 :</strong> Un ripperdoc certifié BLACKOUT vous sera assigné. Installation sous 48h.
+                    </p>
+                    <br>
+                    <p class="exploit"><strong>⚠ AVERTISSEMENTS :</strong></p>
+                    <ul style="list-style:none;padding-left:10px;">
+                        <li>> BLACKOUT ne garantit pas les implants installés par des tiers.</li>
+                        <li>> Les rejets cybernétiques sont à la charge du client.</li>
+                        <li>> Aucun remboursement après installation.</li>
+                        <li>> En cas de décès pendant l'opération : pas de réclamation.</li>
+                    </ul>
+                    <br>
+                    <p>Taux de survie post-op : <span class="exploit">99.2%</span> | Implants vendus : <span
+                            class="exploit">2,847</span></p>
+                    <p>> Restez augmentés. Restez vivants. — <span class="highlight-author">SpaceCowboy</span></p>
+                </div>
+
+                <!-- MY ORDERS -->
+                <div id="file-myorders" class="file-content">
+                    <h3>>>> MES COMMANDES <<<</h3>
+                    <p>> Voici l'historique de vos commandes passées auprès de BLACKOUT.</p>
+                    <p class="exploit"><strong>STATUT DES COMMANDES :</strong></p>
+                    <div id="myOrdersList" style="margin-top: 1.5rem;">Chargement des commandes...</div>
+                </div>
+
+                <!-- LOGIN TAB -->
+                <div id="file-login" class="file-content">
+                    <h3>◈ AUTHENTIFICATION UTILISATEUR // BACKEND DB</h3>
+                    <p class="highlight"><strong>[Système d'Accès Sécurisé — Cryptage AES-512]</strong></p>
+                    <p>> Entrez vos identifiants réseau pour accéder aux fonctions avancées du système BLACKOUT.</p>
+
+                    <div class="product-layout">
+                        <div class="product-frame" style="height: 360px; width: 360px;">
+                            <div class="corners"></div>
+                        </div>
+
+                        <div class="product-info">
+                            <div style="background: rgba(0,0,0,0.4); border: 1px solid var(--terminal-green-dim); padding: 1.5rem; margin-top: 0.5rem;">
+                                <form id="loginForm" onsubmit="event.preventDefault(); attemptLogin();">
+                                    <div style="margin-bottom: 1.2rem;">
+                                        <label for="username" style="display:block; margin-bottom:0.4rem; color:var(--terminal-green); font-size:0.85rem;">> ID UTILISATEUR</label>
+                                        <div style="display:flex; align-items:center; background:rgba(0,255,65,0.04); border:1px solid var(--terminal-green-dim); padding:0.5rem 0.8rem;">
+                                            <span style="color:var(--terminal-green); margin-right:0.5rem; opacity:0.7;">[ID]></span>
+                                            <input type="text" id="username" required placeholder="admin ou user" autocomplete="off" style="width:100%; background:transparent; border:none; color:#fff; font-family:'Share Tech Mono', monospace; font-size:1rem; outline:none;">
+                                        </div>
+                                    </div>
+
+                                    <div style="margin-bottom: 1.2rem;">
+                                        <label for="password" style="display:block; margin-bottom:0.4rem; color:var(--terminal-green); font-size:0.85rem;">> MOT DE PASSE</label>
+                                        <div style="display:flex; align-items:center; background:rgba(0,255,65,0.04); border:1px solid var(--terminal-green-dim); padding:0.5rem 0.8rem;">
+                                            <span style="color:var(--terminal-green); margin-right:0.5rem; opacity:0.7;">[KEY]></span>
+                                            <input type="password" id="password" required placeholder="••••••••" style="width:100%; background:transparent; border:none; color:#fff; font-family:'Share Tech Mono', monospace; font-size:1rem; outline:none;">
+                                        </div>
+                                    </div>
+
+                                    <div style="display:flex; gap:10px; margin-bottom:1.5rem;">
+                                        <button type="button" onclick="document.getElementById('username').value='user';document.getElementById('password').value='1234';" style="flex:1; background:rgba(0,255,65,0.05); border:1px dashed var(--terminal-green-dim); color:var(--terminal-green); font-family:'Share Tech Mono', monospace; padding:0.5rem; font-size:0.8rem; cursor:pointer;">⚡ USER DEMO</button>
+                                        <button type="button" onclick="document.getElementById('username').value='admin';document.getElementById('password').value='admin';" style="flex:1; background:rgba(0,255,65,0.05); border:1px dashed var(--terminal-green-dim); color:var(--terminal-green); font-family:'Share Tech Mono', monospace; padding:0.5rem; font-size:0.8rem; cursor:pointer;">🛡️ ROOT ADMIN</button>
+                                    </div>
+
+                                    <button type="submit" style="width:100%; padding:0.9rem; background:var(--terminal-green); color:#000; font-family:'Share Tech Mono', monospace; font-weight:bold; font-size:1rem; border:none; cursor:pointer; letter-spacing:2px; text-transform:uppercase;">> VALIDER L'ACCÈS DB</button>
+                                </form>
+
+                                <p id="error-msg" style="color:var(--terminal-red); margin-top:1rem; display:none; font-weight:bold;">❌ ERREUR : IDENTIFIANTS INCORRECTS (REJET DB)</p>
+
+                                <div class="terminal-text" style="margin-top: 1.2rem; font-size: 0.8rem;">
+                                    <p class="exploit" style="margin:0;"><strong id="dbStatus">> STATUT DB : CONNECTÉE</strong></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ADMIN TAB -->
+                <div id="file-admin" class="file-content">
+                    <h3>◈ PANNEAU DE CONTRÔLE BACKEND DB</h3>
+                    <p class="highlight"><strong>[Console d'Administration Globale — Base de Données Centralisée]</strong></p>
+
+                    <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(160px, 1fr)); gap:1rem; margin-bottom:1.5rem;">
+                        <div style="background:rgba(0,255,65,0.03); border:1px solid var(--terminal-green-dim); padding:1rem;">
+                            <label style="display:block; font-size:0.75rem; color:rgba(0,255,65,0.7);">> UTILISATEURS DB</label>
+                            <div id="statUsers" style="font-size:1.4rem; color:#fff; font-weight:bold; margin-top:0.3rem;">0</div>
+                        </div>
+                        <div style="background:rgba(0,255,65,0.03); border:1px solid var(--terminal-green-dim); padding:1rem;">
+                            <label style="display:block; font-size:0.75rem; color:rgba(0,255,65,0.7);">> COMMANDES DB</label>
+                            <div id="statOrders" style="font-size:1.4rem; color:#fff; font-weight:bold; margin-top:0.3rem;">0</div>
+                        </div>
+                        <div style="background:rgba(0,255,65,0.03); border:1px solid var(--terminal-green-dim); padding:1rem;">
+                            <label style="display:block; font-size:0.75rem; color:rgba(0,255,65,0.7);">> REVENU CUMULÉ (€$)</label>
+                            <div id="statRevenue" class="exploit" style="font-size:1.4rem; font-weight:bold; margin-top:0.3rem;">0 €$</div>
+                        </div>
+                    </div>
+
+                    <p><strong>> COMPTES UTILISATEURS EN BASE DE DONNÉES :</strong></p>
+                    <div id="userListDiv">Chargement...</div>
+
+                    <p style="margin-top:1.5rem;"><strong>> COMMANDES CLIENTS EN BASE DE DONNÉES :</strong></p>
+                    <div id="orderListDiv">Chargement...</div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
