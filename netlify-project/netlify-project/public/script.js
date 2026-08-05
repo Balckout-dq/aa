@@ -301,8 +301,6 @@ async function handleAddUser() {
 
 // DELETE USER FROM DB
 async function deleteUser(username) {
-    if (!confirm(`Supprimer l'utilisateur "${username}" de la base de données ?`)) return;
-
     try {
         const res = await fetch(`${API_BASE}/users/${username}`, {
             method: 'DELETE'
