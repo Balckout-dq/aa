@@ -515,7 +515,7 @@ function buildProductSheet(imp) {
     return `
         <div id="${escapeHtml(imp.id)}" class="file-content">
             <div class="product-layout">
-                <div class="product-frame">
+                <div class="product-frame${imp.imageUrl ? ' has-image' : ''}">
                     ${imageHtml}
                     <div class="corners"></div>
                 </div>

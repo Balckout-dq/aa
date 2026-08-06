@@ -472,6 +472,10 @@ body {
     opacity: 0.35;
 }
 
+.product-frame.has-image::after {
+    content: none;
+}
+
 .product-frame .corners {
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
