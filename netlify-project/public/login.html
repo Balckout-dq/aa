@@ -69,6 +69,20 @@
             opacity: 0.8;
         }
 
+        .ascii-art {
+            font-family: 'Share Tech Mono', monospace;
+            color: var(--terminal-green);
+            font-size: 0.6rem;
+            line-height: 1.0;
+            text-shadow: 0 0 4px var(--terminal-green-dim);
+            margin: 0 auto 0.8rem auto;
+            opacity: 0.9;
+            white-space: pre;
+            display: inline-block;
+            text-align: left;
+            overflow: hidden;
+        }
+
         .input-group-cyber {
             margin-bottom: 1.4rem;
         }
@@ -111,6 +125,39 @@
             font-family: 'Share Tech Mono', monospace;
             font-size: 1.05rem;
             outline: none;
+        }
+
+        .input-wrap {
+            position: relative;
+        }
+
+        .input-fake-wrap {
+            position: relative;
+            width: 100%;
+        }
+
+        .fake-placeholder {
+            position: absolute;
+            top: 0;
+            left: 0;
+            color: #9a9a9a;
+            font-size: 1.05rem;
+            font-family: 'Share Tech Mono', monospace;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+
+        .input-fake-wrap.hide-placeholder .fake-placeholder {
+            display: none;
+        }
+
+        .blink-cursor {
+            animation: cursor-blink 1s step-end infinite;
+        }
+
+        @keyframes cursor-blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
         }
 
         .quick-fill-row {
@@ -198,6 +245,28 @@
 
         <div class="window-body">
             <div class="login-header-box">
+                <pre class="ascii-art" aria-hidden="true">
+                          ..:::-:::..                         
+                           .:--:....:-===:                        
+                        ::---:...:=++++++=:                       
+                     ::---::..:=++++=====--:..........            
+                   :-==-::..:===+=====-:::-:................      
+                  ----::..:========--::::--::............-+*+==   
+                --:...:::=======---::::----:::-.....:=++++***     
+              ---=++++++*++===--::::-==----:::+:..-=+++****       
+            ------=++++++++++=========----:::##.=++++***          
+          -------:-=++++++++++++=====------##==++****+            
+         ------:::.-=++++++++++=====----*%%=-*+****               
+        :-::::::....==++++++++======-+%%#::*****+                 
+       ::::::.......===+++++++===+#@@#=::-****+                   
+      :..:.........:=%#****##%@@@%*=-:::+**++                     
+      ...........:::-+**####**+==--:::-*++                        
+     .........:::::--=++++===---:::::+**                          
+      ......:::::-----====----:::::=**                            
+       :.::::::::-----------:::::*#                               
+         :.::::::-----------::+                                   
+            =-:-----------+*                                      
+</pre>
                 <div class="encryption-status" style="justify-content: center; margin-bottom: 0.6rem;">
                     <span class="pulse"></span> CANAL CRYPTÉ ACTIF
                 </div>
@@ -208,9 +277,12 @@
             <form id="loginForm" onsubmit="event.preventDefault(); attemptLogin();">
                 <div class="input-group-cyber">
                     <label for="username">> ID UTILISATEUR</label>
-                    <div class="input-wrap">
+                    <div class="input-wrap" id="usernameWrap">
                         <span>[USER]></span>
-                        <input type="text" id="username" required placeholder="admin ou user" autocomplete="off">
+                        <div class="input-fake-wrap">
+                            <input type="text" id="username" required autocomplete="off">
+                            <span class="fake-placeholder" id="usernamePlaceholder">ENTREZ VOTRE ALIAS<span class="blink-cursor">_</span></span>
+                        </div>
                     </div>
                 </div>
 
@@ -235,6 +307,22 @@
     </div>
 
     <script src="script.js"></script>
+    <script>
+        (function() {
+            const input = document.getElementById('username');
+            const wrap = input ? input.closest('.input-fake-wrap') : null;
+            if (!input || !wrap) return;
+
+            function updatePlaceholder() {
+                const shouldHide = input.value.length > 0 || document.activeElement === input;
+                wrap.classList.toggle('hide-placeholder', shouldHide);
+            }
+
+            input.addEventListener('input', updatePlaceholder);
+            input.addEventListener('focus', updatePlaceholder);
+            input.addEventListener('blur', updatePlaceholder);
+        })();
+    </script>
 </body>
 
 </html>
